@@ -11,12 +11,13 @@
 
 <body onload="setupMainScreen()">
     <canvas id="maincanvas"></canvas>
+    <canvas id="rankcanvas"></canvas>
 
     <div id="game-container">
         <canvas id="mycanvas"></canvas>
         <canvas id="scoreboard"></canvas>
     </div>
-    
+
     <script type="text/javascript">
 
         var timescore = 0;
@@ -50,6 +51,7 @@
         function startgame() {
             isGameStarted = true;  // 게임 시작
             maincanvas.style.display = 'none';  // 클릭하면 두 번째 화면이 사라지도록 설정
+            rankcanvas.style.display = 'none';
             canvas.style.display = 'block';  // 클릭하면 첫 번째 화면이 나타나도록 설정
             scoreboard.style.display = 'block';
             drawImages();
@@ -58,9 +60,9 @@
 
             drawScoreBoard()
             starttimescore();
-            
+
         }
-        
+
         function drawImages() {
             context.clearRect(0, 0, canvas.width, canvas.height);
             images.forEach(image => {
@@ -93,17 +95,28 @@
                 clearInterval(timescoreInterval);
                 doing = "완성했습니다.";
                 drawScoreBoard();
-                setTimeout(function() {
-            alert("성공");
-            var isRecord = confirm("기록을 입력하겠습니까?");
-            if (isRecord) {
-                // 사용자가 확인을 클릭했을 때의 처리를 여기에 작성합니다.
-                var name = prompt("이름을 입력하세요.");
-                console.log("이름: " + name);
-                console.log("현재 시간: " + timescore);
-                console.log("무브 카운트: " + moviecount);
-            }
-        }, 100)
+                setTimeout(function () {
+                    alert("성공");
+                    var isRecord = confirm("기록을 입력하겠습니까?");
+                    if (isRecord) {
+                        // 사용자가 확인을 클릭했을 때의 처리를 여기에 작성합니다.
+                        var name = prompt("이름을 입력하세요.");
+                        console.log("이름: " + name);
+                        console.log("현재 시간: " + timescore);
+                        console.log("무브 카운트: " + moviecount);
+                        alert("기록이 입력되었습니다.");
+                        maincanvas.style.display = 'block';
+            rankcanvas.style.display = 'block';
+            canvas.style.display = 'none';
+            scoreboard.style.display = 'none';
+            timescore = 0;
+            moviecount = 0;
+            doing = "도전중입니다.";
+                    }
+                }, 100)
+
+            // 등수를 다시 그립니다.
+            drawRank();
             }
         }
 
@@ -229,30 +242,55 @@
         }
 
         function setupMainScreen() {
-    var maincanvas = document.getElementById('maincanvas');
-    maincanvas.width = 600;
-    maincanvas.height = 400;
-    var maincontext = maincanvas.getContext('2d');
+            var maincanvas = document.getElementById('maincanvas');
+            maincanvas.width = 600;
+            maincanvas.height = 400;
+            maincanvas.style.display = 'block';
+            var maincontext = maincanvas.getContext('2d');
 
-    // 메인 캔버스에 이미지 출력
-    var mainImage = new Image();
-    mainImage.src = './cat/main.png';
-    mainImage.onload = function() {
-        maincontext.drawImage(mainImage, 0, 0, maincanvas.width, maincanvas.height);
-    }
+            // 메인 캔버스에 이미지 출력
+            var mainImage = new Image();
+            mainImage.src = './cat/main.png';
+            mainImage.onload = function () {
+                maincontext.drawImage(mainImage, 0, 0, maincanvas.width, maincanvas.height);
+            }
 
-    // 메인 캔버스에 클릭 이벤트 리스너 추가
-    maincanvas.addEventListener('click', function (event) {
-        startgame();  // 클릭하면 startgame 함수 실행
-    });
+            drawRank();
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'q') {  // 'q' 키를 누른 경우와 게임이 시작된 경우
-            gameend();  // gameend 함수를 실행
+            // 메인 캔버스에 클릭 이벤트 리스너 추가
+            maincanvas.addEventListener('click', function (event) {
+                startgame();  // 클릭하면 startgame 함수 실행
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'q') {  // 'q' 키를 누른 경우와 게임이 시작된 경우
+                    gameend();  // gameend 함수를 실행
+                }
+            });
+
         }
-    });
-}
 
+        var rankcanvas = document.getElementById('rankcanvas');
+        rankcanvas.width = 600;
+        rankcanvas.height = 400;
+        var rankcontext = rankcanvas.getContext('2d');
+
+        function drawRank() {
+            // 등수 데이터를 가져옵니다. 이 예제에서는 임시 데이터를 사용합니다.
+            var ranks = ['1st: Alice', '2nd: Bob', '3rd: Charlie'];
+
+            // rankcanvas를 클리어합니다.
+            rankcontext.clearRect(0, 0, rankcanvas.width, rankcanvas.height);
+            rankcontext.font = '50px Arial';
+            rankcontext.fillText('점수판', 205, 60);
+            
+            rankcontext.font = '20px Arial';
+            // 각 등수를 rankcanvas에 그립니다.
+            ranks.forEach((rank, i) => {
+                
+                rankcontext.fillText(rank, 10, 30 * (i + 3));
+            });
+        }
 
     </script>
 </body>
