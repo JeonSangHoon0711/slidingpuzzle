@@ -12,7 +12,7 @@
 <body onload="setupMainScreen()">
     <canvas id="maincanvas"></canvas>
     <canvas id="rankcanvas"></canvas>
-
+    <audio id="mySound" src="./audio/click.wav"></audio>
     <div id="game-container">
         <canvas id="mycanvas"></canvas>
         <canvas id="scoreboard"></canvas>
@@ -27,6 +27,11 @@
         var gameInterval;
         var timescoreInterval;
 
+        var ranks = [
+            { name: '철수', time: 100, moves: 120 },
+            { name: '영희', time: 120, moves: 222 },
+            { name: '민준', time: 90, moves: 318 }
+        ];
         var canvas = document.getElementById('mycanvas');
         canvas.width = 300;
         canvas.height = 300;
@@ -101,22 +106,25 @@
                     if (isRecord) {
                         // 사용자가 확인을 클릭했을 때의 처리를 여기에 작성합니다.
                         var name = prompt("이름을 입력하세요.");
-                        console.log("이름: " + name);
-                        console.log("현재 시간: " + timescore);
-                        console.log("무브 카운트: " + moviecount);
+                        ranks.push({
+                            name: name,
+                            time: timescore,
+                            moves: moviecount
+                        });
+                        drawRank();
+
                         alert("기록이 입력되었습니다.");
                         maincanvas.style.display = 'block';
-            rankcanvas.style.display = 'block';
-            canvas.style.display = 'none';
-            scoreboard.style.display = 'none';
-            timescore = 0;
-            moviecount = 0;
-            doing = "도전중입니다.";
+                        rankcanvas.style.display = 'block';
+                        canvas.style.display = 'none';
+                        scoreboard.style.display = 'none';
+                        timescore = 0;
+                        moviecount = 0;
+                        doing = "도전중입니다.";
                     }
                 }, 100)
 
-            // 등수를 다시 그립니다.
-            drawRank();
+
             }
         }
 
@@ -139,7 +147,9 @@
             var rect = canvas.getBoundingClientRect();
             var x = event.clientX - rect.left;
             var y = event.clientY - rect.top;
-
+            var sound = document.getElementById('mySound');
+            sound.currentTime = 0;
+            sound.play();
             images.forEach((image, i) => {
                 if (x >= image.x && x <= image.x + image.width && y >= image.y && y <= image.y + image.height) {
                     switch (image.id) {
@@ -275,20 +285,20 @@
         rankcanvas.height = 400;
         var rankcontext = rankcanvas.getContext('2d');
 
-        function drawRank() {
-            // 등수 데이터를 가져옵니다. 이 예제에서는 임시 데이터를 사용합니다.
-            var ranks = ['1st: Alice', '2nd: Bob', '3rd: Charlie'];
 
+        function drawRank() {
+            ranks.sort(function (a, b) {
+                return a.time - b.time;
+            });
             // rankcanvas를 클리어합니다.
             rankcontext.clearRect(0, 0, rankcanvas.width, rankcanvas.height);
             rankcontext.font = '50px Arial';
             rankcontext.fillText('점수판', 205, 60);
-            
+
             rankcontext.font = '20px Arial';
             // 각 등수를 rankcanvas에 그립니다.
             ranks.forEach((rank, i) => {
-                
-                rankcontext.fillText(rank, 10, 30 * (i + 3));
+                rankcontext.fillText((i + 1) + '위: ' + rank.name + ', 시간: ' + rank.time + ', 움직인 횟수: ' + rank.moves, 10, 30 * (i + 3));
             });
         }
 
@@ -296,3 +306,6 @@
 </body>
 
 </html>
+
+<!-- https://mixkit.co/free-sound-effects/click/-->
+<!--https://www.freeimages.com/kr/photo/cat-s-face-1553769-->
